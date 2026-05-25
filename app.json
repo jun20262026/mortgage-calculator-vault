@@ -1,0 +1,48 @@
+{
+  "expo": {
+    "name": "房贷计算器",
+    "slug": "mortgage-calculator",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.jun.mortgagecalc",
+      "buildNumber": "1.0.0",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "需要访问相册以导入照片",
+        "NSPhotoLibraryAddUsageDescription": "需要访问相册以保存照片",
+        "NSDocumentsFolderUsageDescription": "需要访问文件以导入文件",
+        "UIFileSharingEnabled": false,
+        "LSPreferssPecifies": true
+      },
+      "bitcode": false
+    },
+    "android": {
+      "package": "com.jun.mortgagecalc",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.ico"
+    },
+    "description": "房贷计算器 - Mortgage Calculator"
+  }
+}
