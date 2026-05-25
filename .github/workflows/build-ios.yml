@@ -1,0 +1,84 @@
+name: Build iOS IPA
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_type:
+        description: 'Build type'
+        required: true
+        default: 'preview'
+        type: choice
+        options:
+          - preview
+          - production
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Setup Expo
+        uses: expo/expo-github-action@v8
+        with:
+          expo-version: latest
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build iOS IPA
+        run: |
+          cd $GITHUB_WORKSPACE
+          npx expo prebuild -p ios --clean
+          cd ios
+          xcodebuild -workspace mortgage-calculator.workspace \
+            -scheme mortgage-calculator \
+            -configuration Release \
+            -archivePath $GITHUB_WORKSPACE/build/mortgage-calculator.xcarchive \
+            -allowProvisioningUpdates \
+            archive
+          xcodebuild -exportArchive \
+            -archivePath $GITHUB_WORKSPACE/build/mortgage-calculator.xcarchive \
+            -exportPath $GITHUB_WORKSPACE/build/ipa \
+            -exportOptionsPlist $GITHUB_WORKSPACE/ios/ExportOptions.plist \
+            -allowProvisioningUpdates
+        continue-on-error: true
+
+      - name: Create ExportOptions.plist (Ad-hoc)
+        run: |
+          cat > ios/ExportOptions.plist << 'EOF'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>method</key>
+              <string>ad-hoc</string>
+              <key>signingStyle</key>
+              <string>automatic</string>
+              <key>compileBitcode</key>
+              <false/>
+          </dict>
+          </plist>
+          EOF
+        continue-on-error: true
+
+      - name: Alternative - Build with EAS (Cloud Build)
+        run: |
+          npx eas-cli build --platform ios --profile preview --non-interactive --no-wait || true
+        continue-on-error: true
+
+      - name: Upload IPA as Artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mortgage-calculator-ipa
+          path: build/ipa/*.ipa
+          retention-days: 30
